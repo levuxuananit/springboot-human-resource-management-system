@@ -13,6 +13,13 @@
   <name>user-service</name>
   <url>http://maven.apache.org</url>
   <dependencies>
+
+    <!-- [!]: Spring Boot Web -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

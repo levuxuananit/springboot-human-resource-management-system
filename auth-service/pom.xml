@@ -7,12 +7,19 @@
     <artifactId>user-access-management</artifactId>
     <version>1.0-SNAPSHOT</version>
   </parent>
-  <groupId>com.r2s.auth-service</groupId>
+  <groupId>com.r2s.auth</groupId>
   <artifactId>auth-service</artifactId>
   <version>1.0-SNAPSHOT</version>
   <name>auth-service</name>
   <url>http://maven.apache.org</url>
   <dependencies>
+
+    <!-- [!]: Spring Boot Web -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

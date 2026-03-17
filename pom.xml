@@ -2,10 +2,22 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.r2s</groupId>
   <artifactId>user-access-management</artifactId>
+
+<!--  [?]: This is not a module to run code, just to manage other modules -->
   <packaging>pom</packaging>
+
   <version>1.0-SNAPSHOT</version>
   <name>user-access-management</name>
   <url>http://maven.apache.org</url>
+
+  <!-- [?]: This helps all child modules automatically have the standard Spring Boot dependency version. -->
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.3.2</version>
+    <relativePath/>
+  </parent>
+
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -14,9 +26,13 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+  <!-- [?]: List of sub-modules in this multi-module project -->
   <modules>
+    <!-- [?]: Shared code module (common classes, utils, etc.) -->
     <module>core</module>
+    <!-- [?]: Service handling user management -->
     <module>user-service</module>
+    <!-- [?]: Service handling authentication (login, JWT, etc.) -->
     <module>auth-service</module>
   </modules>
 </project>

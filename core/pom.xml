@@ -13,6 +13,12 @@
   <name>core</name>
   <url>http://maven.apache.org</url>
   <dependencies>
+    <!-- [?]: Common dependencies used by services -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

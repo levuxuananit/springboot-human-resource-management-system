@@ -1,4 +1,4 @@
-package com.r2s.auth-service;
+package com.r2s.auth;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
