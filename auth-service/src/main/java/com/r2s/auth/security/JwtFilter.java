@@ -1,6 +1,5 @@
-package com.r2s.auth.config;
+package com.r2s.auth.security;
 
-import com.r2s.auth.security.JwtUtil;
 import com.r2s.auth.service.UserDetailService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
