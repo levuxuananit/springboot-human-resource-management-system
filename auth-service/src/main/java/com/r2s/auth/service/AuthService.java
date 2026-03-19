@@ -1,11 +1,15 @@
 package com.r2s.auth.service;
 
+import com.r2s.auth.dto.AuthResponseDTO;
+import com.r2s.auth.dto.LoginRequestDTO;
 import com.r2s.auth.dto.RegisterRequestDTO;
 import com.r2s.auth.entity.Role;
 import com.r2s.auth.entity.User;
 import com.r2s.auth.repository.UserRepository;
 import com.r2s.auth.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -30,5 +34,18 @@ public class AuthService {
         user.setRole(Role.USER);
 
         userRepo.save(user);
+    }
+
+    // [!] -------------------- Login -----------------------
+    public AuthResponseDTO login(LoginRequestDTO request) {
+        User user = userRepo.findByUsername(request.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException("User name not found"));
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new BadCredentialsException("Invalid password");
+        }
+
+        String token = jwtUtil.generateToken(user.getUsername(), user.getId(), user.getRole().name());
+        return new AuthResponseDTO(token);
     }
 }

@@ -1,6 +1,5 @@
 package com.r2s.auth.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.*;
 
 @Getter

@@ -15,6 +15,7 @@ import java.util.Collections;
 public class UserDetailService implements UserDetailsService {
     private final UserRepository userRepo;
 
+    @Override
     public UserDetails loadUserByUsername(String username) {
         User user = userRepo.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
