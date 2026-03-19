@@ -1,9 +1,10 @@
 package com.r2s.auth.controller;
 
+import com.r2s.auth.dto.AuthResponseDTO;
+import com.r2s.auth.dto.LoginRequestDTO;
 import com.r2s.auth.dto.RegisterRequestDTO;
 import com.r2s.auth.service.AuthService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,6 +23,12 @@ public class AuthController {
     public ResponseEntity<String> register(@RequestBody RegisterRequestDTO requestDTO){
         authService.register(requestDTO);
         return ResponseEntity.status(201).body("User registered successfully");
+    }
+
+    // [!] -------------------- Login -----------------------
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponseDTO> login(@RequestBody LoginRequestDTO request){
+        return ResponseEntity.ok(authService.login(request));
     }
 
 }
