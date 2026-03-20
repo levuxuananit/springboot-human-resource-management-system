@@ -2,6 +2,7 @@ D:\STUDY\JAVA\Java Projects\user-access-management\auth-service\src\main\java\co
 D:\STUDY\JAVA\Java Projects\user-access-management\auth-service\src\main\java\com\r2s\auth\config\SecurityConfig.java
 D:\STUDY\JAVA\Java Projects\user-access-management\auth-service\src\main\java\com\r2s\auth\controller\AuthController.java
 D:\STUDY\JAVA\Java Projects\user-access-management\auth-service\src\main\java\com\r2s\auth\controller\HelloController.java
+D:\STUDY\JAVA\Java Projects\user-access-management\auth-service\src\main\java\com\r2s\auth\controller\RoleController.java
 D:\STUDY\JAVA\Java Projects\user-access-management\auth-service\src\main\java\com\r2s\auth\dto\AuthResponseDTO.java
 D:\STUDY\JAVA\Java Projects\user-access-management\auth-service\src\main\java\com\r2s\auth\dto\LoginRequestDTO.java
 D:\STUDY\JAVA\Java Projects\user-access-management\auth-service\src\main\java\com\r2s\auth\dto\RegisterRequestDTO.java
@@ -11,4 +12,4 @@ D:\STUDY\JAVA\Java Projects\user-access-management\auth-service\src\main\java\co
 D:\STUDY\JAVA\Java Projects\user-access-management\auth-service\src\main\java\com\r2s\auth\security\JwtFilter.java
 D:\STUDY\JAVA\Java Projects\user-access-management\auth-service\src\main\java\com\r2s\auth\security\JwtUtil.java
 D:\STUDY\JAVA\Java Projects\user-access-management\auth-service\src\main\java\com\r2s\auth\service\AuthService.java
-D:\STUDY\JAVA\Java Projects\user-access-management\auth-service\src\main\java\com\r2s\auth\service\UserDetailService.java
+D:\STUDY\JAVA\Java Projects\user-access-management\auth-service\src\main\java\com\r2s\auth\service\CustomUserDetailService.java
