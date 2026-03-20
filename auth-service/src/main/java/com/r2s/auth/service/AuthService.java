@@ -31,7 +31,7 @@ public class AuthService {
 
         user.setUsername(requestDTO.getUsername());
         user.setPassword(passwordEncoder.encode(requestDTO.getPassword())); //[?]: hash password by BCrypt before save to DB
-        user.setRole(Role.USER);
+        user.setRole(requestDTO.getRole());
 
         userRepo.save(user);
     }

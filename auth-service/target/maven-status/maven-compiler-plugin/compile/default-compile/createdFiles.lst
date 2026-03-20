@@ -6,7 +6,6 @@ com\r2s\auth\config\SecurityConfig.class
 com\r2s\auth\dto\RegisterRequestDTO$RegisterRequestDTOBuilder.class
 com\r2s\auth\controller\HelloController.class
 com\r2s\auth\dto\RegisterRequestDTO.class
-com\r2s\auth\service\UserDetailService.class
 com\r2s\auth\entity\User.class
 com\r2s\auth\service\AuthService.class
 com\r2s\auth\dto\LoginRequestDTO$LoginRequestDTOBuilder.class
@@ -14,5 +13,7 @@ com\r2s\auth\dto\LoginRequestDTO.class
 com\r2s\auth\repository\UserRepository.class
 com\r2s\auth\dto\AuthResponseDTO.class
 com\r2s\auth\security\JwtUtil.class
+com\r2s\auth\service\CustomUserDetailService.class
 com\r2s\auth\entity\Role.class
 com\r2s\auth\dto\AuthResponseDTO$AuthResponseDTOBuilder.class
+com\r2s\auth\controller\RoleController.class
