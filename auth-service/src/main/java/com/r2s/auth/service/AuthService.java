@@ -1,13 +1,14 @@
 package com.r2s.auth.service;
 
 import com.r2s.auth.dto.RegisterRequestDTO;
-import com.r2s.auth.entity.Role;
 import com.r2s.auth.entity.User;
 import com.r2s.auth.repository.UserRepository;
 import com.r2s.auth.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -27,8 +28,7 @@ public class AuthService {
 
         user.setUsername(requestDTO.getUsername());
         user.setPassword(passwordEncoder.encode(requestDTO.getPassword())); //[?]: hash password by BCrypt before save to DB
-        user.setRole(Role.USER);
-
+        user.setCreatedAt(LocalDateTime.now());
         userRepo.save(user);
     }
 }
