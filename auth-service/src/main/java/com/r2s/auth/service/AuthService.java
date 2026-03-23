@@ -13,6 +13,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 // [?]: @RequiredArgsConstructor uses "final" fields to ensure they must be initialized when the object is created
@@ -32,7 +34,7 @@ public class AuthService {
         user.setUsername(requestDTO.getUsername());
         user.setPassword(passwordEncoder.encode(requestDTO.getPassword())); //[?]: hash password by BCrypt before save to DB
         user.setRole(requestDTO.getRole());
-
+        user.setCreatedAt(LocalDateTime.now());
         userRepo.save(user);
     }
 
