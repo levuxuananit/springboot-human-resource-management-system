@@ -1,13 +1,13 @@
 package com.r2s.auth.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Getter
-@Setter
-@NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class LoginRequestDTO {
-    private String username;
-    private String password;
+    @NotBlank(message = "Username can not be blank")
+    private final String username;
+    @NotBlank(message = "Password can bot be blank")
+    private final String password;
 }

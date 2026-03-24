@@ -6,5 +6,12 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class AuthResponseDTO {
-    private String token;
+    private final String accessToken;
+
+    @Builder.Default
+    private final String tokenType = "Bearer";
+    private final Long expiresIn;
+    private final String username;
+    private final String role;
+
 }

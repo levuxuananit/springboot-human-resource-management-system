@@ -5,47 +5,60 @@ import com.r2s.auth.dto.LoginRequestDTO;
 import com.r2s.auth.dto.RegisterRequestDTO;
 import com.r2s.auth.entity.Role;
 import com.r2s.auth.entity.User;
+import com.r2s.auth.exception.InvalidCredentialsException;
+import com.r2s.auth.exception.UserAlreadyExistsException;
 import com.r2s.auth.repository.UserRepository;
 import com.r2s.auth.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+
 // [?]: @RequiredArgsConstructor uses "final" fields to ensure they must be initialized when the object is created
 public class AuthService {
-    private final UserRepository userRepo;
+    private final UserRepository repo;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
     // [!] -------------------- Register --------------------
-    public void register(RegisterRequestDTO requestDTO) {
-        if (userRepo.findByUsername(requestDTO.getUsername()).isPresent()) {
-            throw new RuntimeException("User name already exists");
+    public void register(RegisterRequestDTO dto) {
+
+        if (repo.existsByUsername(dto.getUsername())) {
+            throw new UserAlreadyExistsException("Username already exists");
         }
 
-        User user = new User();
+        User user = User.builder()
+                .username(dto.getUsername())
+                .password(passwordEncoder.encode(dto.getPassword()))
+                .role(Role.USER)
+                .build();
 
-        user.setUsername(requestDTO.getUsername());
-        user.setPassword(passwordEncoder.encode(requestDTO.getPassword())); //[?]: hash password by BCrypt before save to DB
-        user.setRole(requestDTO.getRole());
-
-        userRepo.save(user);
+        repo.save(user);
     }
 
     // [!] -------------------- Login -----------------------
-    public AuthResponseDTO login(LoginRequestDTO request) {
-        User user = userRepo.findByUsername(request.getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException("User name not found"));
+    public AuthResponseDTO login(LoginRequestDTO dto) {
+        User user = repo
+                .findByUsername(dto.getUsername())
+                .orElseThrow(() -> new InvalidCredentialsException(
+                        "Invalid username or password"));
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new BadCredentialsException("Invalid password");
+        if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
+            throw new InvalidCredentialsException(
+                    "Invalid username or password");
         }
 
-        String token = jwtUtil.generateToken(user.getUsername(), user.getId(), user.getRole().name());
-        return new AuthResponseDTO(token);
+        String token = jwtUtil.generateToken(
+                user.getUsername(),
+                user.getId(),
+                user.getRole().name());
+
+        return AuthResponseDTO.builder()
+                .accessToken(token)
+                .username(user.getUsername())
+                .role(user.getRole().name())
+                .build();
     }
 }
