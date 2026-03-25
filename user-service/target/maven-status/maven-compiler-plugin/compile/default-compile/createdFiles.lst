@@ -1,2 +1,9 @@
-com\r2s\user\controller\HelloController.class
+com\r2s\user\exception\InvalidCredentialsException.class
+com\r2s\user\exception\ErrorResponse.class
+com\r2s\user\dto\UpdateRequestDTO$UpdateRequestDTOBuilder.class
+com\r2s\user\exception\GlobalExceptionHandler.class
+com\r2s\user\exception\DuplicateResourceException.class
 com\r2s\user\UserServiceApplication.class
+com\r2s\user\exception\ResourceNotFoundException.class
+com\r2s\user\dto\UpdateRequestDTO.class
+com\r2s\user\controller\HelloController.class
