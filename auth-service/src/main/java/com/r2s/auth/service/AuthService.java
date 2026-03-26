@@ -3,12 +3,13 @@ package com.r2s.auth.service;
 import com.r2s.auth.dto.AuthResponseDTO;
 import com.r2s.auth.dto.LoginRequestDTO;
 import com.r2s.auth.dto.RegisterRequestDTO;
-import com.r2s.auth.entity.Role;
-import com.r2s.auth.entity.User;
-import com.r2s.auth.exception.InvalidCredentialsException;
-import com.r2s.auth.exception.UserAlreadyExistsException;
+import com.r2s.core.config.SecurityConstants;
+import com.r2s.core.entity.Role;
+import com.r2s.core.entity.User;
 import com.r2s.auth.repository.UserRepository;
-import com.r2s.auth.security.JwtUtil;
+import com.r2s.core.exception.DuplicateResourceException;
+import com.r2s.core.exception.InvalidCredentialsException;
+import com.r2s.core.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,7 @@ public class AuthService {
     public void register(RegisterRequestDTO dto) {
 
         if (repo.existsByUsername(dto.getUsername())) {
-            throw new UserAlreadyExistsException("Username already exists");
+            throw new DuplicateResourceException("Username already exists");
         }
 
         User user = User.builder()
@@ -58,6 +59,7 @@ public class AuthService {
         return AuthResponseDTO.builder()
                 .accessToken(token)
                 .username(user.getUsername())
+                .expiresIn(SecurityConstants.EXPIRATION_TIME)
                 .role(user.getRole().name())
                 .build();
     }

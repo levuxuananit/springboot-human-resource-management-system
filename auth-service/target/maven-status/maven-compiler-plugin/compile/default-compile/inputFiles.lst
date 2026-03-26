@@ -6,14 +6,6 @@ D:\STUDY\JAVA\Java Projects\user-access-management\auth-service\src\main\java\co
 D:\STUDY\JAVA\Java Projects\user-access-management\auth-service\src\main\java\com\r2s\auth\dto\AuthResponseDTO.java
 D:\STUDY\JAVA\Java Projects\user-access-management\auth-service\src\main\java\com\r2s\auth\dto\LoginRequestDTO.java
 D:\STUDY\JAVA\Java Projects\user-access-management\auth-service\src\main\java\com\r2s\auth\dto\RegisterRequestDTO.java
-D:\STUDY\JAVA\Java Projects\user-access-management\auth-service\src\main\java\com\r2s\auth\entity\Role.java
-D:\STUDY\JAVA\Java Projects\user-access-management\auth-service\src\main\java\com\r2s\auth\entity\User.java
-D:\STUDY\JAVA\Java Projects\user-access-management\auth-service\src\main\java\com\r2s\auth\exception\ErrorResponse.java
-D:\STUDY\JAVA\Java Projects\user-access-management\auth-service\src\main\java\com\r2s\auth\exception\GlobalExceptionHandler.java
-D:\STUDY\JAVA\Java Projects\user-access-management\auth-service\src\main\java\com\r2s\auth\exception\InvalidCredentialsException.java
-D:\STUDY\JAVA\Java Projects\user-access-management\auth-service\src\main\java\com\r2s\auth\exception\UserAlreadyExistsException.java
 D:\STUDY\JAVA\Java Projects\user-access-management\auth-service\src\main\java\com\r2s\auth\repository\UserRepository.java
-D:\STUDY\JAVA\Java Projects\user-access-management\auth-service\src\main\java\com\r2s\auth\security\JwtFilter.java
-D:\STUDY\JAVA\Java Projects\user-access-management\auth-service\src\main\java\com\r2s\auth\security\JwtUtil.java
 D:\STUDY\JAVA\Java Projects\user-access-management\auth-service\src\main\java\com\r2s\auth\service\AuthService.java
-D:\STUDY\JAVA\Java Projects\user-access-management\auth-service\src\main\java\com\r2s\auth\service\CustomUserDetailService.java
+D:\STUDY\JAVA\Java Projects\user-access-management\auth-service\src\main\java\com\r2s\auth\service\UserProviderImpl.java
