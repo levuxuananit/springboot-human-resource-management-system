@@ -1,11 +1,10 @@
 package com.r2s.user.service;
 
+import com.r2s.core.exception.DuplicateResourceException;
+import com.r2s.core.exception.ResourceNotFoundException;
 import com.r2s.user.dto.UpdateRequestDTO;
 import com.r2s.user.dto.UserResponseDTO;
-import com.r2s.user.entity.User;
-import com.r2s.user.exception.DuplicateResourceException;
-import com.r2s.user.exception.ResourceNotFoundException;
-import com.r2s.user.exception.DuplicateResourceException;
+import com.r2s.core.entity.User;
 import com.r2s.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -39,26 +38,26 @@ public class UserService {
         return repo
                 .findByUsername(username)
                 .map(UserResponseDTO::fromEntity)
-                .orElseThrow(() -> new ResourceNotFoundException("Not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
     // [!] -------------------- Update user by name ----------------
     @Transactional
-    public UserResponseDTO updateUser(String username, UpdateRequestDTO dto) {
-        User user = repo
-                .findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("Not found"));
+    public UserResponseDTO updateUser(String currentUsername, UpdateRequestDTO dto) {
+        User user = repo.findByUsername(currentUsername)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        // [?] Check new username does not overlap with the existing name
         if (dto.getUsername() != null && !dto.getUsername().isBlank()) {
             String newUsername = dto.getUsername();
-            if (!newUsername.equals(username) && repo.existsByUsername(newUsername)) {
-                throw new DuplicateResourceException("Username already exists");
+
+            if (!newUsername.equals(currentUsername)) {
+                if (repo.existsByUsername(newUsername)) {
+                    throw new DuplicateResourceException("User has already taken!");
+                }
+                user.setUsername(newUsername);
             }
-            user.setUsername(newUsername);
         }
 
-        // [?] Check new password
         if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
             user.setPassword(passwordEncoder.encode(dto.getPassword()));
         }
@@ -71,7 +70,7 @@ public class UserService {
     public void deleteUser(String username) {
         User user = repo
                 .findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         repo.delete(user);
     }
 }

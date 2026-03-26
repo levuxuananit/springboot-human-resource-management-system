@@ -7,7 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 public class LoginRequestDTO {
     @NotBlank(message = "Username can not be blank")
-    private final String username;
+    private String username;
     @NotBlank(message = "Password can bot be blank")
-    private final String password;
+    private String password;
 }
