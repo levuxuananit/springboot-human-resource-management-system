@@ -2,12 +2,11 @@ package com.r2s.user.service;
 
 import com.r2s.core.exception.DuplicateResourceException;
 import com.r2s.core.exception.ResourceNotFoundException;
-import com.r2s.user.dto.UpdateRequestDTO;
-import com.r2s.user.dto.UserResponseDTO;
+import com.r2s.user.dto.UpdateUserRequest;
+import com.r2s.user.dto.UserResponse;
 import com.r2s.core.entity.User;
 import com.r2s.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,45 +23,42 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     // [!] -------------------- Read all users --------------------
-    public List<UserResponseDTO> getAllUsers() {
+    public List<UserResponse> getAllUsers() {
         return repo
                 .findAll()
                 .stream()
-                .map(UserResponseDTO::fromEntity)
+                .map(UserResponse::fromEntity)
                 .collect(Collectors.toList()
                 );
     }
 
     // [!] -------------------- Get user by name -------------------
-    public UserResponseDTO getUserByUsername(String username) {
+    public UserResponse getUserByUsername(String username) {
         return repo
                 .findByUsername(username)
-                .map(UserResponseDTO::fromEntity)
+                .map(UserResponse::fromEntity)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
     // [!] -------------------- Update user by name ----------------
     @Transactional
-    public UserResponseDTO updateUser(String currentUsername, UpdateRequestDTO dto) {
-        User user = repo.findByUsername(currentUsername)
+    public UserResponse updateUser(String username, UpdateUserRequest req) {
+        User user = repo.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        if (dto.getUsername() != null && !dto.getUsername().isBlank()) {
-            String newUsername = dto.getUsername();
-
-            if (!newUsername.equals(currentUsername)) {
-                if (repo.existsByUsername(newUsername)) {
-                    throw new DuplicateResourceException("User has already taken!");
-                }
-                user.setUsername(newUsername);
+        // [?] Update new email
+        if(!req.getEmail().equals(user.getEmail())){
+            if(repo.existsByEmail(req.getEmail())){
+                throw new DuplicateResourceException("Email already exists");
             }
+            user.setEmail(req.getEmail());
+        }
+        // [?] Update new fullName
+        if(!req.getFullName().equals(user.getFullName())){
+            user.setFullName(req.getFullName());
         }
 
-        if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
-            user.setPassword(passwordEncoder.encode(dto.getPassword()));
-        }
-
-        return UserResponseDTO.fromEntity(repo.save(user));
+        return UserResponse.fromEntity(repo.save(user));
     }
 
     // [!] -------------------- Delete user by name ----------------

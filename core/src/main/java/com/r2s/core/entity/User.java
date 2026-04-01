@@ -3,7 +3,6 @@ package com.r2s.core.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import com.r2s.core.entity.Role;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -29,6 +28,12 @@ public class User {
 
     @Column(nullable = false)
     private String password;
+
+    @Column(nullable = false, length = 100)
+    private String fullName;
+
+    @Column(nullable = false, unique = true, length = 100)
+    private String email;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

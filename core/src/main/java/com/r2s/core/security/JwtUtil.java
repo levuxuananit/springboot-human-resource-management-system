@@ -5,7 +5,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -14,12 +13,10 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    private String secretKey = SecurityConstants.SECRET;
-    private long expirationDuration = SecurityConstants.EXPIRATION_TIME;
-
     // [!] -------------------- Generate Token --------------------
     public String generateToken(String username, Long userId, String role) {
 
+        long expirationDuration = SecurityConstants.EXPIRATION_TIME;
         return Jwts.builder()
                 .subject(username)
                 .claim("userId", userId)
@@ -45,6 +42,7 @@ public class JwtUtil {
 
     // [!] -------------------- Utils ------------------------------
     private SecretKey getSigningKey() {
+        String secretKey = SecurityConstants.SECRET;
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }

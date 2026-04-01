@@ -1,8 +1,8 @@
 package com.r2s.auth.controller;
 
-import com.r2s.auth.dto.AuthResponseDTO;
-import com.r2s.auth.dto.LoginRequestDTO;
-import com.r2s.auth.dto.RegisterRequestDTO;
+import com.r2s.auth.dto.AuthResponse;
+import com.r2s.auth.dto.LoginRequest;
+import com.r2s.auth.dto.RegisterRequest;
 import com.r2s.auth.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class AuthController {
 
     // [!] -------------------- Register --------------------
     @PostMapping("/register")
-    public ResponseEntity<String> register(@Valid @RequestBody RegisterRequestDTO requestDTO){
+    public ResponseEntity<String> register(@Valid @RequestBody RegisterRequest requestDTO){
         authService.register(requestDTO);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -31,7 +31,7 @@ public class AuthController {
 
     // [!] -------------------- Login -----------------------
     @PostMapping("/login")
-    public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO request){
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request){
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(authService.login(request));

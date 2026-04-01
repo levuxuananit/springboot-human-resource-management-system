@@ -1,8 +1,8 @@
 package com.r2s.auth.service;
 
-import com.r2s.auth.dto.AuthResponseDTO;
-import com.r2s.auth.dto.LoginRequestDTO;
-import com.r2s.auth.dto.RegisterRequestDTO;
+import com.r2s.auth.dto.AuthResponse;
+import com.r2s.auth.dto.LoginRequest;
+import com.r2s.auth.dto.RegisterRequest;
 import com.r2s.core.config.SecurityConstants;
 import com.r2s.core.entity.Role;
 import com.r2s.core.entity.User;
@@ -24,15 +24,17 @@ public class AuthService {
     private final JwtUtil jwtUtil;
 
     // [!] -------------------- Register --------------------
-    public void register(RegisterRequestDTO dto) {
+    public void register(RegisterRequest req) {
 
-        if (repo.existsByUsername(dto.getUsername())) {
+        if (repo.existsByUsername(req.getUsername())) {
             throw new DuplicateResourceException("Username already exists");
         }
 
         User user = User.builder()
-                .username(dto.getUsername())
-                .password(passwordEncoder.encode(dto.getPassword()))
+                .username(req.getUsername())
+                .password(passwordEncoder.encode(req.getPassword()))
+                .fullName(req.getFullName())
+                .email(req.getEmail())
                 .role(Role.USER)
                 .build();
 
@@ -40,13 +42,13 @@ public class AuthService {
     }
 
     // [!] -------------------- Login -----------------------
-    public AuthResponseDTO login(LoginRequestDTO dto) {
+    public AuthResponse login(LoginRequest req) {
         User user = repo
-                .findByUsername(dto.getUsername())
+                .findByUsername(req.getUsername())
                 .orElseThrow(() -> new InvalidCredentialsException(
                         "Invalid username or password"));
 
-        if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(req.getPassword(), user.getPassword())) {
             throw new InvalidCredentialsException(
                     "Invalid username or password");
         }
@@ -56,11 +58,16 @@ public class AuthService {
                 user.getId(),
                 user.getRole().name());
 
-        return AuthResponseDTO.builder()
+        return AuthResponse.builder()
                 .accessToken(token)
                 .username(user.getUsername())
                 .expiresIn(SecurityConstants.EXPIRATION_TIME)
-                .role(user.getRole().name())
+                .user(AuthResponse.UserInfo.builder()
+                        .id(user.getId())
+                        .fullName(user.getFullName())
+                        .email(user.getEmail())
+                        .role(user.getRole().name())
+                        .build())
                 .build();
     }
 }

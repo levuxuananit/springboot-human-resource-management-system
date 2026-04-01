@@ -1,7 +1,7 @@
 package com.r2s.user.controller;
 
-import com.r2s.user.dto.UpdateRequestDTO;
-import com.r2s.user.dto.UserResponseDTO;
+import com.r2s.user.dto.UpdateUserRequest;
+import com.r2s.user.dto.UserResponse;
 import com.r2s.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,20 +22,21 @@ public class UserController {
     // [!] -------------------- Read all users --------------------
     @GetMapping("/all")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
+    public ResponseEntity<List<UserResponse>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
     // [!] -------------------- Read own profile ------------------
     @GetMapping("/profile")
-    public ResponseEntity<UserResponseDTO> getMyProfile(Authentication authentication) {
+    public ResponseEntity<UserResponse> getMyProfile(Authentication authentication) {
         return ResponseEntity.ok(userService.getUserByUsername(authentication.getName()));
     }
 
     // [!] -------------------- Update own profile ----------------
     @PutMapping("/profile")
-    public ResponseEntity<UserResponseDTO> updateMyProfile(@Valid @RequestBody UpdateRequestDTO res, Authentication authentication) {
-        return ResponseEntity.ok(userService.updateUser(authentication.getName(), res));
+    public ResponseEntity<UserResponse> updateMyProfile(@Valid @RequestBody UpdateUserRequest req, Authentication authentication) {
+        String username = authentication.getName();
+        return ResponseEntity.ok(userService.updateUser(username, req));
     }
 
     // [!] -------------------- Delete ----------------------------
