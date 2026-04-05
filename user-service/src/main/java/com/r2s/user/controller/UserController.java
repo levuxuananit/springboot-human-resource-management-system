@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,12 +30,14 @@ public class UserController {
 
     // [!] -------------------- Read own profile ------------------
     @GetMapping("/profile")
-    public ResponseEntity<UserResponse> getMyProfile(Authentication authentication) {
-        return ResponseEntity.ok(userService.getUserByUsername(authentication.getName()));
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserResponse> getMyProfile(@AuthenticationPrincipal UserDetails userDetails) { // [?] @AuthenticationPrincipal automatically retrieves secure UserDetails from SecurityContext
+        return ResponseEntity.ok(userService.getUserByUsername(userDetails.getUsername()));
     }
 
     // [!] -------------------- Update own profile ----------------
     @PutMapping("/profile")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserResponse> updateMyProfile(@Valid @RequestBody UpdateUserRequest req, Authentication authentication) {
         String username = authentication.getName();
         return ResponseEntity.ok(userService.updateUser(username, req));
