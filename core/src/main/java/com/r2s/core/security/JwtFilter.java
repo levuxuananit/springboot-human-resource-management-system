@@ -37,7 +37,7 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         // [?] 2. Extract Token (remove the word "Bearer")
-        String token = authHeader.substring(7);
+        String token = authHeader.substring(SecurityConstants.TOKEN_PREFIX.length());
 
         try {
 

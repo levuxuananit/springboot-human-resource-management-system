@@ -30,6 +30,10 @@ public class AuthService {
             throw new DuplicateResourceException("Username already exists");
         }
 
+        if (repo.existsByEmail(req.getEmail())) {
+            throw new DuplicateResourceException("Email already exists");
+        }
+
         User user = User.builder()
                 .username(req.getUsername())
                 .password(passwordEncoder.encode(req.getPassword()))

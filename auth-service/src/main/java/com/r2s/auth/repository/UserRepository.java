@@ -12,4 +12,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     // [?]: when register, checking username exists instead of "select *" (optimize performance)
     boolean existsByUsername(String username);
+
+    boolean existsByEmail(String username);
 }
