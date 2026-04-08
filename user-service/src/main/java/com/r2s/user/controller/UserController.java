@@ -5,7 +5,6 @@ import com.r2s.user.dto.UserResponse;
 import com.r2s.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,16 +29,14 @@ public class UserController {
 
     // [!] -------------------- Read own profile ------------------
     @GetMapping("/profile")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserResponse> getMyProfile(@AuthenticationPrincipal UserDetails userDetails) { // [?] @AuthenticationPrincipal automatically retrieves secure UserDetails from SecurityContext
         return ResponseEntity.ok(userService.getUserByUsername(userDetails.getUsername()));
     }
 
     // [!] -------------------- Update own profile ----------------
     @PutMapping("/profile")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<UserResponse> updateMyProfile(@Valid @RequestBody UpdateUserRequest req, Authentication authentication) {
-        String username = authentication.getName();
+    public ResponseEntity<UserResponse> updateMyProfile(@Valid @RequestBody UpdateUserRequest req, @AuthenticationPrincipal UserDetails userDetails) {
+        String username = userDetails.getUsername();
         return ResponseEntity.ok(userService.updateUser(username, req));
     }
 

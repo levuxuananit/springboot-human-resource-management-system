@@ -3,7 +3,6 @@ package com.r2s.auth.service;
 import com.r2s.auth.dto.AuthResponse;
 import com.r2s.auth.dto.LoginRequest;
 import com.r2s.auth.dto.RegisterRequest;
-import com.r2s.core.config.SecurityConstants;
 import com.r2s.core.entity.Role;
 import com.r2s.core.entity.User;
 import com.r2s.auth.repository.UserRepository;
@@ -11,6 +10,7 @@ import com.r2s.core.exception.DuplicateResourceException;
 import com.r2s.core.exception.InvalidCredentialsException;
 import com.r2s.core.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 
 // [?]: @RequiredArgsConstructor uses "final" fields to ensure they must be initialized when the object is created
 public class AuthService {
+    @Value("${jwt.expiration}")
+    private int expiration;
     private final UserRepository repo;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
@@ -65,7 +67,7 @@ public class AuthService {
         return AuthResponse.builder()
                 .accessToken(token)
                 .username(user.getUsername())
-                .expiresIn(SecurityConstants.EXPIRATION_TIME)
+                .expiresIn(expiration)
                 .user(AuthResponse.UserInfo.builder()
                         .id(user.getId())
                         .fullName(user.getFullName())

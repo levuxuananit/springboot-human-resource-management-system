@@ -1,4 +1,5 @@
 com\r2s\core\entity\User$UserBuilder.class
+com\r2s\core\config\JwtProperties.class
 com\r2s\core\security\CustomUserDetailService.class
 com\r2s\core\security\JwtUtil.class
 com\r2s\core\exception\ResourceNotFoundException.class
