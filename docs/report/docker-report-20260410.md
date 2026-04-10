@@ -5,7 +5,9 @@
 - Mô tả lifecycle khi run LOCAL
 - Mô tả lifecycle khi run DOCKER
 
+---
 ## LIFECYCLE KHI RUN LOCAL
+---
 
 ### 1. Application Startup
 
@@ -16,6 +18,8 @@
     - `@SpringBootApplication`
     - `@EnableJpaAuditing`
     - `@EnableConfigurationProperties(JwtProperties.class)`
+
+---
 
 ### 2. Application Startup
 
@@ -30,6 +34,8 @@
     - Pagination configuration
     - Security configuration
 
+---
+
 ### 3. Database Connection Initialization
 
 - Tiến trình khởi tạo và kết nối DB:
@@ -42,6 +48,8 @@
     - User Entity
     - Role Enum
     - PostgreSQL (local instance)
+
+---
 
 ### 4. Security Initialization
 
@@ -56,6 +64,8 @@
     - SecurityConfig
     - CustomAuthenticationEntryPoint
 
+---
+
 ### 5. API Request Lifecycle
 
 - Khi client gửi request: Client → Controller → Service → Repository → Database
@@ -68,6 +78,8 @@
     - Repository truy vấn database
     - Response trả về client
 
+---
+
 ### 6. Logging & Exception Handling
 
 - Exception được xử lý bởi `GlobalExceptionHandler`
@@ -77,19 +89,13 @@
     - CustomAccessDeniedHandler
     - JwtAuthenticationEntryPoint
 
+---
+
 ## ## LIFECYCLE KHI RUN DOCKER
 
 - Khi chạy hệ thống bằng Docker, toàn bộ các service được container hóa và khởi động thông qua `docker-compose`.
 
-### 1. Docker Compose Initialization
-
-- Developer chạy:
-
-```
-docker-compose up --build
-```
-
-- Khi chạy hệ thống bằng Docker, toàn bộ các service được container hóa và khởi động thông qua `docker-compose`.
+---
 
 ### 1. Docker Compose Initialization
 
@@ -103,6 +109,8 @@ docker-compose up --build
     - `auth-service/Dockerfile`
     - `user-service/Dockerfile`
     - `postgres/init.sql`
+
+---
 
 ### 2. Container Build Process
 
@@ -122,6 +130,8 @@ docker-compose up --build
     - Docker pull image: `postgres:latest`
     - Sau đó: `postgres/init.sql` -> được chạy để khởi tạo schema ban đầu.
 
+---
+
 ### 3. Container Startup Order
 
 - Docker Compose khởi động:
@@ -129,6 +139,8 @@ docker-compose up --build
     - Auth Service container
     - User Service container
 - Database phải chạy trước để các service có thể kết nối.
+
+---
 
 ### 4. Environment Variable Injection
 
@@ -138,6 +150,8 @@ docker-compose up --build
     - JwtProperties
     - Datasource configuration
 
+---
+
 ### 5. Service Communication
 
 - Các container giao tiếp thông qua: `Docker Network`
@@ -146,9 +160,13 @@ docker-compose up --build
     - auth-service → postgres
     - Thông qua hostname: `postgres`
 
+---
+
 ### 6. API Runtime Flow (Inside Container)
 
 - Luồng xử lý request: Client → Docker container → Controller → Service → Repository → PostgreSQL container
+
+---
 
 ### 7. Logging & Monitoring
 
@@ -158,3 +176,5 @@ docker-compose up --build
     - stderr
 
 - Developer có thể xem log bằng: `docker-compose logs`
+
+---
