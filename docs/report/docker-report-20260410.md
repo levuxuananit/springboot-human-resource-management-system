@@ -91,7 +91,7 @@
 
 ---
 
-## ## LIFECYCLE KHI RUN DOCKER
+## LIFECYCLE KHI RUN DOCKER
 
 - Khi chạy hệ thống bằng Docker, toàn bộ các service được container hóa và khởi động thông qua `docker-compose`.
 
