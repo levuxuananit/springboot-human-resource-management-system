@@ -1,11 +1,15 @@
 package com.r2s.core.security;
 
 import com.r2s.core.config.SecurityConstants;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,6 +19,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
@@ -37,21 +42,22 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         // [?] 2. Extract Token (remove the word "Bearer")
-        String token = authHeader.substring(SecurityConstants.TOKEN_PREFIX.length());
+        String token = authHeader.substring(SecurityConstants.TOKEN_PREFIX.length()).trim();
 
         try {
 
             // [?] 3. get username from token
-            String username = jwtUtil.extractUsername(token);
+            final String username = jwtUtil.extractUsername(token);
 
             // [?] 4. If the username is present and not authenticated in this session (SecurityContext)
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                // [?] Find user in Database
-                UserDetails userDetails = userDetailService.loadUserByUsername(username);
 
                 // [?] 5. Validate token and set authentication
                 if (jwtUtil.isTokenValid(token)) {
+
+                    // [?] Find user in Database
+                    UserDetails userDetails = userDetailService.loadUserByUsername(username);
 
                     // [?] Create authentication object for Spring Security
                     UsernamePasswordAuthenticationToken authToken =
@@ -67,9 +73,15 @@ public class JwtFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }
+        } catch (ExpiredJwtException e) {
+            log.warn("JWT expired: {}", e.getMessage());
+            req.setAttribute("jwt_error", "Token has expired. Please refresh.");
+        } catch (SignatureException | MalformedJwtException e) {
+            log.error("Security violation - Invalid JWT: {}", e.getMessage());
+            req.setAttribute("jwt_error", "Invalid token integrity.");
         } catch (Exception e) {
-            // [?] If there is an error (fake token, expired...), delete the context to ensure safety
-            SecurityContextHolder.clearContext();
+            log.error("Authentication failed: ", e);
+            req.setAttribute("jwt_error", "Authentication failed.");
         }
 
         // [?] 6. Always call chain.doFilter to request to continue the journey

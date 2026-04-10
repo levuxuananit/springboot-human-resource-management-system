@@ -6,9 +6,10 @@ import com.r2s.auth.dto.RegisterRequest;
 import com.r2s.core.entity.Role;
 import com.r2s.core.entity.User;
 import com.r2s.auth.repository.UserRepository;
-import com.r2s.core.exception.DuplicateResourceException;
-import com.r2s.core.exception.InvalidCredentialsException;
+import com.r2s.core.exception.ConflictException;
+import com.r2s.core.exception.UnauthenticatedException;
 import com.r2s.core.security.JwtUtil;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,14 +27,14 @@ public class AuthService {
     private final JwtUtil jwtUtil;
 
     // [!] -------------------- Register --------------------
-    public void register(RegisterRequest req) {
+    public void register(@Valid RegisterRequest req) {
 
         if (repo.existsByUsername(req.getUsername())) {
-            throw new DuplicateResourceException("Username already exists");
+            throw new ConflictException("Username already exists");
         }
 
         if (repo.existsByEmail(req.getEmail())) {
-            throw new DuplicateResourceException("Email already exists");
+            throw new ConflictException("Email already exists");
         }
 
         User user = User.builder()
@@ -49,14 +50,11 @@ public class AuthService {
 
     // [!] -------------------- Login -----------------------
     public AuthResponse login(LoginRequest req) {
-        User user = repo
-                .findByUsername(req.getUsername())
-                .orElseThrow(() -> new InvalidCredentialsException(
-                        "Invalid username or password"));
+        User user = repo.findByUsername(req.getUsername())
+                .orElseThrow(() -> new UnauthenticatedException("Invalid username or password"));
 
         if (!passwordEncoder.matches(req.getPassword(), user.getPassword())) {
-            throw new InvalidCredentialsException(
-                    "Invalid username or password");
+            throw new UnauthenticatedException("Invalid username or password");
         }
 
         String token = jwtUtil.generateToken(

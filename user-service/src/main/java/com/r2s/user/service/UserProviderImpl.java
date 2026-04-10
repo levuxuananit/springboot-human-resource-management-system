@@ -1,12 +1,12 @@
 package com.r2s.user.service;
 
+import com.r2s.core.exception.NotFoundException;
 import com.r2s.user.repository.UserRepository;
 import com.r2s.core.entity.User;
 import com.r2s.core.security.UserProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -20,7 +20,7 @@ public class UserProviderImpl implements UserProvider {
     @Override
     public UserDetails loadUserByUsername(String username) {
         User user = userRepo.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found:"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),

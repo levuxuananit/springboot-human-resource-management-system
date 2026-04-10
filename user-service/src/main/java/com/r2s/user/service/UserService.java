@@ -1,35 +1,37 @@
 package com.r2s.user.service;
 
-import com.r2s.core.exception.DuplicateResourceException;
-import com.r2s.core.exception.ResourceNotFoundException;
+import com.r2s.core.exception.ConflictException;
+import com.r2s.core.exception.NotFoundException;
 import com.r2s.user.dto.UpdateUserRequest;
 import com.r2s.user.dto.UserResponse;
 import com.r2s.core.entity.User;
 import com.r2s.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class UserService {
 
     private final UserRepository repo;
-    private final PasswordEncoder passwordEncoder;
 
     // [!] -------------------- Read all users --------------------
-    public List<UserResponse> getAllUsers() {
+    public Page<UserResponse> getAllUsers(Pageable pageable) {
+
+        log.info("Fetching users with pagination: page={}, size={}",
+                pageable.getPageNumber(),
+                pageable.getPageSize());
+
         return repo
-                .findAll()
-                .stream()
-                .map(UserResponse::fromEntity)
-                .collect(Collectors.toList()
-                );
+                .findAll(pageable)
+                .map(UserResponse::fromEntity);
     }
 
     // [!] -------------------- Get user by name -------------------
@@ -37,19 +39,19 @@ public class UserService {
         return repo
                 .findByUsername(username)
                 .map(UserResponse::fromEntity)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
     }
 
     // [!] -------------------- Update user by name ----------------
     @Transactional
     public UserResponse updateUser(String username, UpdateUserRequest req) {
         User user = repo.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
         // [?] Update new email
         if(!req.getEmail().equals(user.getEmail())){
             if(repo.existsByEmail(req.getEmail())){
-                throw new DuplicateResourceException("Email already exists");
+                throw new ConflictException("Email already exists");
             }
             user.setEmail(req.getEmail());
         }
@@ -58,6 +60,7 @@ public class UserService {
             user.setFullName(req.getFullName());
         }
 
+        log.info("Updating profile for user: {}", username);
         return UserResponse.fromEntity(repo.save(user));
     }
 
@@ -66,7 +69,7 @@ public class UserService {
     public void deleteUser(String username) {
         User user = repo
                 .findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
         repo.delete(user);
     }
 }

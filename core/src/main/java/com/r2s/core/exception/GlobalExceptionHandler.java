@@ -1,149 +1,102 @@
 package com.r2s.core.exception;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.stream.Collectors;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 
-@Slf4j // [?] Used for log.error(), log.warn()
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // [!] --------- 409 Conflict - Duplicate Resource ----------
-    @ExceptionHandler(DuplicateResourceException.class)
-    public ResponseEntity<ErrorResponse> handleUserExists(DuplicateResourceException ex) {
-
-        log.warn("Duplicate Resource: {}", ex.getMessage());
-
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.CONFLICT.value(),
-                ex.getMessage(),
-                System.currentTimeMillis()
-        );
-
-        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    private ResponseEntity<ApiError> buildResponse(HttpStatus status, String message, String path, Map<String, String> fieldErrors) {
+        ApiError error = ApiError.builder()
+                .timestamp(Instant.now())
+                .status(status.value())
+                .error(status.getReasonPhrase())
+                .message(message)
+                .path(path)
+                .fieldErrors(fieldErrors)
+                .build();
+        return new ResponseEntity<>(error, status);
     }
 
-    // [!] 409 Conflict - Database Constraint (Unique email, username, etc.)
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ErrorResponse> handleDatabaseConstraint(DataIntegrityViolationException ex) {
-
-        log.error("Database constraint violation", ex);
-
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.CONFLICT.value(),
-                "Duplicate resource or invalid data",
-                System.currentTimeMillis()
-        );
-
-        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
-    }
-
-    // [!] ------- 401 Unauthorized - Invalid Credentials -------
-    @ExceptionHandler(InvalidCredentialsException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidCredentials(InvalidCredentialsException ex) {
-
-        log.warn("Invalid credentials attempt: {}", ex.getMessage());
-
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.UNAUTHORIZED.value(),
-                ex.getMessage(),
-                System.currentTimeMillis()
-        );
-
-        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
-    }
-
-    // [!] ----- 401 Unauthorized - Authentication Failure ------
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException ex) {
-
-        log.warn("Authentication failed: {}", ex.getMessage());
-
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.UNAUTHORIZED.value(),
-                "Authentication failed",
-                System.currentTimeMillis()
-        );
-
-        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
-    }
-
-    // [!] -------------------- 404 Not found ------------------
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex) {
-
-        log.warn("Resource not found: {}", ex.getMessage());
-
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.NOT_FOUND.value(),
-                ex.getMessage(),
-                System.currentTimeMillis()
-        );
-
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-    }
-
-    // [!] -------------------- 400 Bad Request (Validation) -----------------
+    // [!] Handle errors Validate input data (@Valid)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ApiError> handleValidation(MethodArgumentNotValidException ex, HttpServletRequest req) {
 
-        String msg = ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                .collect(Collectors.joining(", "));
+        Map<String, String> errors = new HashMap<>();
 
-        if (msg.isBlank()) {
-            msg = "Validation failed";
-        }
 
-        log.warn("Validation error: {}", msg);
+        ex.getBindingResult()
+                .getAllErrors()
+                .forEach(error -> {
+                    String fieldName = ((FieldError) error).getField();
+                    errors.put(fieldName, error.getDefaultMessage());
+        });
 
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                msg,
-                System.currentTimeMillis()
-        );
+        log.warn("[{}] Validation failed for {}: {} -> Path: {}",
+                ex.getStatusCode(),
+                req.getMethod(),
+                errors,
+                req.getRequestURI());
 
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        return buildResponse(
+                HttpStatus.BAD_REQUEST,
+                "Validation failed",
+                req.getRequestURI(),
+                errors);
     }
 
-    // [!] -------------------- 403 Forbidden -------------------
+    // [!] Authenticated 401: Not logged in or wrong token (Bridging from Filter to)
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiError> handleAuthentication(AuthenticationException ex, HttpServletRequest req) {
+        return buildResponse(HttpStatus.UNAUTHORIZED, "Please log in to continue", req.getRequestURI(), null);
+    }
+
+    // [!] Access Denied 403: Insufficient permissions error (Bridging from Filter or @PreAuthorize)
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
-
-        log.error("Access denied: {}", ex.getMessage());
-
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.FORBIDDEN.value(),
-                "Access denied! You don't have permission to perform this action.",
-                System.currentTimeMillis()
-        );
-
-        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+    public ResponseEntity<ApiError> handleAccessDenied(AccessDeniedException ex, HttpServletRequest req) {
+        return buildResponse(HttpStatus.FORBIDDEN, "You do not have permission to access this resource", req.getRequestURI(), null);
     }
 
-    // [!] ------------ 500 Internal Server Error --------------
+    // [!] Base Exception (401, 403, 404, 409...)
+    @ExceptionHandler(BaseException.class)
+    public ResponseEntity<ApiError> handleBusiness(BaseException ex, HttpServletRequest req) {
+
+        log.warn("[{}] Business logic error: {} -> Path: {}",
+                ex.getStatus(),
+                ex.getMessage(),
+                req.getRequestURI());
+
+        return buildResponse(
+                ex.getStatus(),
+                ex.getMessage(),
+                req.getRequestURI(),
+                null);
+    }
+
+
+    // [!] 500 Internal Server Error
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex) {
+    public ResponseEntity<ApiError> handleGeneral(Exception ex,HttpServletRequest req) {
 
-        log.error("Internal Server Error: ", ex);
+        log.error("Unhandled exception: ", ex);
 
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "An internal server error occurred. Please contact support!",
-                System.currentTimeMillis()
-        );
-
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        return buildResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "An internal server error occurred",
+                req.getRequestURI(),
+                null);
     }
 }
